@@ -1,0 +1,55 @@
+# IntelliJ IDEA artifacts
+.idea/
+*.iml
+*.iws
+
+# Build artifacts
+/out/
+/dist/
+build
+!build/openapi/.openapi-generator-ignore
+
+# Yarn artifacts
+node_modules/
+yarn-error.log
+.pnp*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+
+# TypeScript artifacts
+*.tsbuildinfo
+
+# Unnecessary files (adjust as needed)
+*.log
+*.bak
+*.swp
+*~
+.DS_Store # macOS
+Thumbs.db # Windows
+
+openapitools.json
+
+.eslintcache
+
+generated
+
+prompts
+scripts/combine-files.sh
+combined_output.txt
+
+.vscode/*
+!.vscode/extensions.json
+
+coverage
+
+# Claude local memory files
+.claude/
+.agent-workspace
+
+TODO
+
+manual-tests
