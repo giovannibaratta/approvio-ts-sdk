@@ -1,8 +1,14 @@
 {
   "name": "@approvio/ts-sdk",
-  "version": "0.1.0",
+  "version": "0.0.1",
+  "private": false,
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "license": "MIT",
   "engines": {
     "node": "22"
@@ -12,7 +18,8 @@
     "build": "tsc",
     "lint": "eslint --cache --fix .",
     "format": "prettier --config .prettierrc . --write",
-    "test": "jest"
+    "test": "jest",
+    "prepublishOnly": "yarn format && yarn lint && yarn build"
   },
   "dependencies": {
     "@approvio/api": "0.0.19",
