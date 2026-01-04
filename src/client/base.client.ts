@@ -2,7 +2,7 @@ import axios, {AxiosInstance, InternalAxiosRequestConfig} from "axios"
 import * as TE from "fp-ts/TaskEither"
 import {APIError} from "@approvio/api"
 import {ApprovioServerConfig, Authenticator} from "../interfaces"
-import {isApprovioError} from "./utils"
+import {isApprovioError, removeTrailingSlash, validateURL} from "./utils"
 
 export type ApprovioError = (APIError & {status: number}) | Error
 
@@ -13,8 +13,10 @@ export abstract class BaseApprovioClient {
   protected readonly axios: AxiosInstance
 
   constructor(protected readonly config: ApprovioServerConfig) {
+    validateURL(config.endpoint)
+
     this.axios = axios.create({
-      baseURL: config.endpoint
+      baseURL: removeTrailingSlash(config.endpoint)
     })
 
     this.axios.interceptors.request.use(async (axiosConfig: InternalAxiosRequestConfig) => {

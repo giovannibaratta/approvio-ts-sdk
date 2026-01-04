@@ -2,14 +2,19 @@ import axios from "axios"
 import {TokenRequest, TokenResponse} from "@approvio/api"
 import * as TE from "fp-ts/TaskEither"
 import {ApprovioError} from "../client/base.client"
-import {isApprovioError} from "../client/utils"
+import {isApprovioError, removeTrailingSlash, validateURL} from "../client/utils"
 
 /**
  * Helper class for managing Approvio authentication flows.
  * Provides methods for both user-based OIDC login and agent-based challenge-response authentication.
  */
 export class AuthHelper {
-  constructor(private readonly endpoint: string) {}
+  private readonly endpoint: string
+
+  constructor(endpoint: string) {
+    validateURL(endpoint)
+    this.endpoint = removeTrailingSlash(endpoint)
+  }
 
   /**
    * Generates the login URL to initiate the OIDC authentication flow for users.
