@@ -1,5 +1,5 @@
 import * as TE from "fp-ts/TaskEither"
-import {ListUsers200Response} from "@approvio/api"
+import {AgentRegistrationRequest, AgentRegistrationResponse, ListUsers200Response} from "@approvio/api"
 import {BaseApprovioClient, ApprovioError} from "./base.client"
 import {UserAuthenticator} from "../auth/user.authenticator"
 import {ApprovioServerConfig, Authenticator} from "../interfaces"
@@ -28,5 +28,9 @@ export class ApprovioUserClient extends BaseApprovioClient {
     limit?: number
   }): TE.TaskEither<ApprovioError, ListUsers200Response> {
     return this.get<ListUsers200Response>("/users", params as Record<string, unknown>)
+  }
+
+  registerAgent(data: AgentRegistrationRequest): TE.TaskEither<ApprovioError, AgentRegistrationResponse> {
+    return this.post<AgentRegistrationResponse>("/agents", data)
   }
 }
