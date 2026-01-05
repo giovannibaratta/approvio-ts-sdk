@@ -2,14 +2,17 @@ import {RefreshTokenRequest, TokenResponse} from "@approvio/api"
 import {Authenticator} from "../interfaces"
 import {isJwtTokenExpired} from "./utils"
 import axios from "axios"
+import {removeTrailingSlash, validateURL} from "../client/utils"
 
 /**
  * Authenticator for Approvio Users (Human sessions).
  * Handles automatic token renewal using a refresh token when the access token expires.
  */
 export class UserAuthenticator implements Authenticator {
+  private readonly endpoint: string
+
   constructor(
-    private readonly endpoint: string,
+    endpoint: string,
     private accessToken: string,
     private refreshToken: string,
     /**
@@ -17,7 +20,10 @@ export class UserAuthenticator implements Authenticator {
      * Useful for persisting the new tokens in a configuration file or local storage.
      */
     private readonly onTokenRefreshed?: (accessToken: string, refreshToken: string) => void
-  ) {}
+  ) {
+    validateURL(endpoint)
+    this.endpoint = removeTrailingSlash(endpoint)
+  }
 
   /**
    * Returns a valid access token.
