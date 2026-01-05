@@ -31,6 +31,6 @@ export class ApprovioUserClient extends BaseApprovioClient {
   }
 
   registerAgent(data: AgentRegistrationRequest): TE.TaskEither<ApprovioError, AgentRegistrationResponse> {
-    return this.post<AgentRegistrationResponse>("/agents", data)
+    return this.post<AgentRegistrationResponse>("/agents/register", data)
   }
 }
