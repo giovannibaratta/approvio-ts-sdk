@@ -1,6 +1,6 @@
 import axios, {AxiosInstance, InternalAxiosRequestConfig} from "axios"
 import * as TE from "fp-ts/TaskEither"
-import {APIError} from "@approvio/api"
+import {APIError, Workflow} from "@approvio/api"
 import {ApprovioServerConfig, Authenticator} from "../interfaces"
 import {isApprovioError, removeTrailingSlash, validateURL} from "./utils"
 
@@ -95,5 +95,12 @@ export abstract class BaseApprovioClient {
       },
       error => this.handleError(error)
     )
+  }
+
+  /**
+   * Get workflow details.
+   */
+  getWorkflow(workflowId: string): TE.TaskEither<ApprovioError, Workflow> {
+    return this.get<Workflow>(`/workflows/${workflowId}`)
   }
 }
