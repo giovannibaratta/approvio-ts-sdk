@@ -1,7 +1,6 @@
 {
   "name": "@approvio/ts-sdk",
-  "version": "0.0.6",
-  "private": false,
+  "version": "0.0.7",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -22,7 +21,7 @@
     "prepublishOnly": "yarn format && yarn lint && yarn build"
   },
   "dependencies": {
-    "@approvio/api": "0.0.19",
+    "@approvio/api": "0.0.23",
     "axios": "1.13.2",
     "fp-ts": "2.16.11",
     "io-ts": "2.2.22",
