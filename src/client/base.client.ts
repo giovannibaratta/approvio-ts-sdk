@@ -133,7 +133,8 @@ export abstract class BaseApprovioClient {
   protected delete<T>(url: string, data?: unknown): TE.TaskEither<ApprovioError, T> {
     return TE.tryCatch(
       async () => {
-        const response = await this.axios.delete<T>(url, {data})
+        const config = data !== undefined ? {data} : undefined
+        const response = await this.axios.delete<T>(url, config)
         return response.data
       },
       error => this.handleError(error)

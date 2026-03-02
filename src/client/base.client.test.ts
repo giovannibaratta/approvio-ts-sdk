@@ -288,7 +288,7 @@ describe("BaseApprovioClient", () => {
           await client.testDelete("/endpoint/123")()
 
           // Expect: axios called with URL
-          expect(mockAxiosInstance.delete).toHaveBeenCalledWith("/endpoint/123")
+          expect(mockAxiosInstance.delete).toHaveBeenCalledWith("/endpoint/123", undefined)
         })
       })
     })

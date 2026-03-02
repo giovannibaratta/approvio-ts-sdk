@@ -6,5 +6,9 @@ module.exports = {
   moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node"],
   collectCoverageFrom: ["src/**/*.ts", "!src/**/*.test.ts", "!src/**/*.d.ts"],
   coverageDirectory: "coverage",
-  verbose: true
+  verbose: true,
+  transform: {
+    "^.+\\.[tj]sx?$": "ts-jest"
+  },
+  transformIgnorePatterns: ["node_modules/(?!jose/.*)"]
 }
