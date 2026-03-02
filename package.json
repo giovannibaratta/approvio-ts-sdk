@@ -21,7 +21,7 @@
     "prepublishOnly": "yarn format && yarn lint && yarn build"
   },
   "dependencies": {
-    "@approvio/api": "0.0.23",
+    "@approvio/api": "0.0.29",
     "axios": "1.13.2",
     "fp-ts": "2.16.11",
     "io-ts": "2.2.22",

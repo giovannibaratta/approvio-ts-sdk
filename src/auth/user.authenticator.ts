@@ -50,7 +50,7 @@ export class UserAuthenticator implements Authenticator {
       refreshToken: this.refreshToken
     }
 
-    const tokenResponse = await axios.post<TokenResponse>(`${this.endpoint}/auth/refresh`, request)
+    const tokenResponse = await axios.post<TokenResponse>(`${this.endpoint}/auth/cli/refresh`, request)
 
     return tokenResponse.data
   }

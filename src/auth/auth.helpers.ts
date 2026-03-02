@@ -29,7 +29,23 @@ export class AuthHelper {
    * Generates the login URL to initiate the OIDC authentication flow for users.
    */
   getUserLoginUrl(): string {
-    return `${this.endpoint}/auth/login`
+    return `${this.endpoint}/auth/web/login`
+  }
+
+  /**
+   * Initiates the CLI login flow using a local loopback redirect URI.
+   * Prompts the backend to return an authorization URL for the IDP.
+   */
+  initiateCliLogin(redirectUri: string): TE.TaskEither<ApprovioError, string> {
+    return TE.tryCatch(
+      async () => {
+        const response = await axios.post<{authorizationUrl: string}>(`${this.endpoint}/auth/cli/initiate`, {
+          redirectUri
+        })
+        return response.data.authorizationUrl
+      },
+      error => this.handleError(error)
+    )
   }
 
   /**
@@ -44,7 +60,7 @@ export class AuthHelper {
 
     return TE.tryCatch(
       async () => {
-        const response = await axios.post<TokenResponse>(`${this.endpoint}/auth/token`, request)
+        const response = await axios.post<TokenResponse>(`${this.endpoint}/auth/cli/token`, request)
         return response.data
       },
       error => this.handleError(error)

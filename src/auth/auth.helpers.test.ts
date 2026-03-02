@@ -44,7 +44,7 @@ describe("AuthHelper", () => {
         const loginUrl = helper.getUserLoginUrl()
 
         // Expect: correct URL format
-        expect(loginUrl).toBe("https://api.example.com/auth/login")
+        expect(loginUrl).toBe("https://api.example.com/auth/web/login")
       })
 
       it("should return correct login URL with path in endpoint", () => {
@@ -55,7 +55,7 @@ describe("AuthHelper", () => {
         const loginUrl = helper.getUserLoginUrl()
 
         // Expect: path preserved in URL
-        expect(loginUrl).toBe("https://api.example.com/v1/auth/login")
+        expect(loginUrl).toBe("https://api.example.com/v1/auth/web/login")
       })
 
       it("should return correct login URL when endpoint has trailing slash", () => {
@@ -66,7 +66,7 @@ describe("AuthHelper", () => {
         const loginUrl = helper.getUserLoginUrl()
 
         // Expect: no double slash in URL
-        expect(loginUrl).toBe("https://api.example.com/auth/login")
+        expect(loginUrl).toBe("https://api.example.com/auth/web/login")
       })
     })
   })
