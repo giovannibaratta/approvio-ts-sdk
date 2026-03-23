@@ -6,13 +6,19 @@ import * as E from "fp-ts/Either"
 jest.mock("axios")
 const mockedAxios = axios as jest.Mocked<typeof axios>
 
+class TestAuthenticator implements Authenticator {
+  customizeAxios(): void {
+    // No-op for testing
+  }
+}
+
 class TestClient extends BaseApprovioClient {
   private mockAuthenticator: Authenticator
 
-  constructor(endpoint: string) {
-    super({endpoint})
+  constructor(endpoint: string, authenticator: Authenticator) {
+    super({endpoint}, authenticator)
     this.mockAuthenticator = {
-      getAccessToken: jest.fn().mockResolvedValue("test-access-token")
+      customizeAxios: jest.fn().mockResolvedValue(void 0)
     }
   }
 
@@ -51,6 +57,9 @@ describe("BaseApprovioClient", () => {
       request: {
         use: jest.Mock
       }
+      response: {
+        use: jest.Mock
+      }
     }
   }
 
@@ -62,6 +71,9 @@ describe("BaseApprovioClient", () => {
       delete: jest.fn(),
       interceptors: {
         request: {
+          use: jest.fn()
+        },
+        response: {
           use: jest.fn()
         }
       }
@@ -78,7 +90,7 @@ describe("BaseApprovioClient", () => {
         const invalidEndpoint = "not-a-url"
 
         // When/Expect: constructing throws error
-        expect(() => new TestClient(invalidEndpoint)).toThrow("Invalid URL")
+        expect(() => new TestClient(invalidEndpoint, new TestAuthenticator())).toThrow("Invalid URL")
       })
 
       it("should throw error for empty endpoint", () => {
@@ -86,7 +98,7 @@ describe("BaseApprovioClient", () => {
         const emptyEndpoint = ""
 
         // When/Expect: constructing throws error
-        expect(() => new TestClient(emptyEndpoint)).toThrow("Invalid URL")
+        expect(() => new TestClient(emptyEndpoint, new TestAuthenticator())).toThrow("Invalid URL")
       })
     })
 
@@ -96,7 +108,7 @@ describe("BaseApprovioClient", () => {
         const endpoint = "https://api.example.com"
 
         // When: creating client
-        new TestClient(endpoint)
+        new TestClient(endpoint, new TestAuthenticator())
 
         // Expect: axios created with correct baseURL
         expect(mockedAxios.create).toHaveBeenCalledWith({
@@ -109,7 +121,7 @@ describe("BaseApprovioClient", () => {
         const endpoint = "https://api.example.com/"
 
         // When: creating client
-        new TestClient(endpoint)
+        new TestClient(endpoint, new TestAuthenticator())
 
         // Expect: axios created with baseURL without trailing slash
         expect(mockedAxios.create).toHaveBeenCalledWith({
@@ -123,7 +135,7 @@ describe("BaseApprovioClient", () => {
     let client: TestClient
 
     beforeEach(() => {
-      client = new TestClient("https://api.example.com")
+      client = new TestClient("https://api.example.com", new TestAuthenticator())
     })
 
     describe("get", () => {

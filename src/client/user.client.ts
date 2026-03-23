@@ -28,9 +28,10 @@ import {
 } from "@approvio/api"
 
 import {BaseApprovioClient, ApprovioError} from "./base.client"
-import {UserAuthenticator} from "../auth/user.authenticator"
-import {ApprovioServerConfig, Authenticator} from "../interfaces"
-import {pipe} from "fp-ts/lib/function"
+import {CliUserAuthenticator} from "../auth/user.authenticator"
+import {ApprovioServerConfig} from "../interfaces"
+import {pipe} from "fp-ts/function"
+import {WebAuthenticator} from "src/auth/web.authenticator"
 
 /**
  * Client for Approvio API (Human/User).
@@ -38,13 +39,9 @@ import {pipe} from "fp-ts/lib/function"
 export class ApprovioUserClient extends BaseApprovioClient {
   constructor(
     config: ApprovioServerConfig,
-    private readonly authenticator: UserAuthenticator
+    readonly authenticator: CliUserAuthenticator | WebAuthenticator
   ) {
-    super(config)
-  }
-
-  getAuthenticator(): Authenticator {
-    return this.authenticator
+    super(config, authenticator)
   }
 
   /**

@@ -1,5 +1,7 @@
+import {AxiosInstance} from "axios"
+
 /**
- * Authenticator interface for providing authentication tokens.
+ * Authenticator interface for customizing the Axios client based on the Auth method.
  * Implementations are responsible for managing the token lifecycle, including
  * storage and automatic renewal when expired.
  */
@@ -8,6 +10,10 @@ export interface Authenticator {
    * Returns a valid access token.
    * If the current token is expired, the implementation should handle the refresh logic.
    */
+  customizeAxios(axios: AxiosInstance): void
+}
+
+export interface TokenBaseAuthenticator extends Authenticator {
   getAccessToken(): Promise<string>
 }
 

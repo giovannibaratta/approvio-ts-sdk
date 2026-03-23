@@ -1,4 +1,4 @@
-import axios, {AxiosInstance, InternalAxiosRequestConfig} from "axios"
+import axios, {AxiosInstance} from "axios"
 import * as TE from "fp-ts/TaskEither"
 import {
   APIError,
@@ -27,22 +27,18 @@ const networkCodes = ["ECONNREFUSED", "ETIMEDOUT", "ENOTFOUND", "ECONNRESET"]
 export abstract class BaseApprovioClient {
   protected readonly axios: AxiosInstance
 
-  constructor(protected readonly config: ApprovioServerConfig) {
+  constructor(
+    protected readonly config: ApprovioServerConfig,
+    protected readonly authenticator: Authenticator
+  ) {
     validateURL(config.endpoint)
 
     this.axios = axios.create({
       baseURL: removeTrailingSlash(config.endpoint)
     })
 
-    this.axios.interceptors.request.use(async (axiosConfig: InternalAxiosRequestConfig) => {
-      const accessToken = await this.getAuthenticator().getAccessToken()
-      axiosConfig.headers.set("Authorization", `Bearer ${accessToken}`)
-      return axiosConfig
-    })
+    this.authenticator.customizeAxios(this.axios)
   }
-
-  abstract getAuthenticator(): Authenticator
-
   protected handleError(error: unknown): ApprovioError {
     if (axios.isAxiosError(error)) {
       if (networkCodes.includes(error.code ?? "")) return new NetworkError(`Network error ${error.code}`)

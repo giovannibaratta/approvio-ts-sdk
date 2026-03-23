@@ -8,9 +8,9 @@ import {ApprovioServerConfig, Authenticator} from "../interfaces"
 export class ApprovioAgentClient extends BaseApprovioClient {
   constructor(
     config: ApprovioServerConfig,
-    private readonly authenticator: AgentAuthenticator
+    readonly authenticator: AgentAuthenticator
   ) {
-    super(config)
+    super(config, authenticator)
   }
 
   getAuthenticator(): Authenticator {

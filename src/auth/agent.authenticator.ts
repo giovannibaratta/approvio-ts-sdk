@@ -1,7 +1,7 @@
 import {AgentTokenResponse, RefreshTokenRequest} from "@approvio/api"
-import {Authenticator} from "../interfaces"
+import {TokenBaseAuthenticator} from "../interfaces"
 import {isJwtTokenExpired} from "./utils"
-import axios from "axios"
+import axios, {AxiosInstance, InternalAxiosRequestConfig} from "axios"
 import {removeTrailingSlash, validateURL} from "../client/utils"
 import * as jose from "jose"
 
@@ -9,7 +9,7 @@ import * as jose from "jose"
  * Authenticator for Approvio Agents.
  * Handles automatic token renewal using a refresh token and DPoP proof when the access token expires.
  */
-export class AgentAuthenticator implements Authenticator {
+export class AgentAuthenticator implements TokenBaseAuthenticator {
   private readonly endpoint: string
 
   constructor(
@@ -25,6 +25,14 @@ export class AgentAuthenticator implements Authenticator {
   ) {
     validateURL(endpoint)
     this.endpoint = removeTrailingSlash(endpoint)
+  }
+
+  customizeAxios(axios: AxiosInstance): void {
+    axios.interceptors.request.use(async (axiosConfig: InternalAxiosRequestConfig) => {
+      const accessToken = await this.getAccessToken()
+      axiosConfig.headers.set("Authorization", `Bearer ${accessToken}`)
+      return axiosConfig
+    })
   }
 
   /**

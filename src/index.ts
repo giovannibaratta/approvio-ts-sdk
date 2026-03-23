@@ -4,6 +4,7 @@
 
 export * from "./interfaces"
 export * from "./auth/user.authenticator"
+export * from "./auth/web.authenticator"
 export * from "./auth/auth.helpers"
 export * from "./auth/agent.authenticator"
 export * from "./client/user.client"
