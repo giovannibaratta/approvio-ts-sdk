@@ -159,8 +159,16 @@ export class ApprovioUserClient extends BaseApprovioClient {
   /**
    * Create a new group.
    */
-  createGroup(data: GroupCreate): TE.TaskEither<ApprovioError, void> {
-    return this.post<void>("/groups", data)
+  createGroup(data: GroupCreate): TE.TaskEither<ApprovioError, string> {
+    return pipe(
+      this.postWithLocation<void>("/groups", data),
+      TE.map(({location}) => location),
+      TE.chain(location => {
+        const id = location.split("/").pop()
+        if (!id) return TE.left(new Error("Invalid location"))
+        return TE.right(id)
+      })
+    )
   }
 
   /**
