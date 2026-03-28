@@ -5,12 +5,12 @@ __metadata:
   version: 8
   cacheKey: 10
 
-"@approvio/api@npm:0.0.31":
-  version: 0.0.31
-  resolution: "@approvio/api@npm:0.0.31"
+"@approvio/api@npm:0.0.32":
+  version: 0.0.32
+  resolution: "@approvio/api@npm:0.0.32"
   peerDependencies:
     fp-ts: ^2.0.0
-  checksum: 10/4399416352dff9d0d2a877f9aacd180a3f4f01ce05a5861df41993769adb074269fb5c73f7c5ea450a83c51d78459b1b89037469d6ec3f81b4e0b772f34e23bf
+  checksum: 10/0bdca3e9d6c24ff014fe06d018b7e5e097605f1bcbd98960c09ea4fd1a7a9ab3f19938a6a6e32e820b7caee31e2322d26320dee18bb528d634f6255d215e4a55
   languageName: node
   linkType: hard
 
@@ -18,7 +18,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@approvio/ts-sdk@workspace:."
   dependencies:
-    "@approvio/api": "npm:0.0.31"
+    "@approvio/api": "npm:0.0.32"
     "@types/jest": "npm:29.5.14"
     "@types/node": "npm:22.18.0"
     "@typescript-eslint/eslint-plugin": "npm:8.50.0"
