@@ -24,7 +24,11 @@ import {
   ListSpaces200Response,
   OrganizationAdminCreate,
   ListOrganizationAdminsForOrg200Response,
-  OrganizationAdminRemove
+  OrganizationAdminRemove,
+  ListWorkflowTemplatesParams,
+  ListGroupsParams,
+  ListUsersParams,
+  ListSpacesParams
 } from "@approvio/api"
 
 import {BaseApprovioClient, ApprovioError} from "./base.client"
@@ -44,38 +48,22 @@ export class ApprovioUserClient extends BaseApprovioClient {
     super(config, authenticator)
   }
 
-  /**
-   * Lists users.
-   */
-  listUsers(params?: {
-    search?: string
-    page?: number
-    limit?: number
-  }): TE.TaskEither<ApprovioError, ListUsers200Response> {
-    return this.get<ListUsers200Response>("/users", params as Record<string, unknown>)
+  listUsers(params?: ListUsersParams): TE.TaskEither<ApprovioError, ListUsers200Response> {
+    return this.get<ListUsers200Response, ListUsersParams>("/users", params)
   }
 
   registerAgent(data: AgentRegistrationRequest): TE.TaskEither<ApprovioError, AgentRegistrationResponse> {
     return this.post<AgentRegistrationResponse>("/agents/register", data)
   }
 
-  /**
-   * Assign roles to an agent.
-   */
   assignAgentRoles(agentId: string, data: RoleAssignmentRequest): TE.TaskEither<ApprovioError, void> {
     return this.put<void>(`/agents/${agentId}/roles`, data)
   }
 
-  /**
-   * Remove roles from an agent.
-   */
   removeAgentRoles(agentId: string, data: RoleRemovalRequest): TE.TaskEither<ApprovioError, void> {
     return this.delete<void>(`/agents/${agentId}/roles`, data)
   }
 
-  /**
-   * Creates a new user.
-   */
   createUser(data: UserCreate): TE.TaskEither<ApprovioError, string> {
     return pipe(
       this.postWithLocation<void>("/users", data),
@@ -88,54 +76,32 @@ export class ApprovioUserClient extends BaseApprovioClient {
     )
   }
 
-  /**
-   * Get user details.
-   */
   getUser(userId: string): TE.TaskEither<ApprovioError, User> {
     return this.get<User>(`/users/${userId}`)
   }
 
-  /**
-   * Assign roles to a user.
-   */
   assignUserRoles(userId: string, data: RoleAssignmentRequest): TE.TaskEither<ApprovioError, void> {
     return this.put<void>(`/users/${userId}/roles`, data)
   }
 
-  /**
-   * Remove roles from a user.
-   */
   removeUserRoles(userId: string, data: RoleRemovalRequest): TE.TaskEither<ApprovioError, void> {
     return this.delete<void>(`/users/${userId}/roles`, data)
   }
 
-  /**
-   * Create a new workflow template.
-   */
   createWorkflowTemplate(data: WorkflowTemplateCreate): TE.TaskEither<ApprovioError, WorkflowTemplate> {
     return this.post<WorkflowTemplate>("/workflow-templates", data)
   }
 
-  /**
-   * List workflow templates.
-   */
-  listWorkflowTemplates(params?: {
-    page?: number
-    limit?: number
-  }): TE.TaskEither<ApprovioError, ListWorkflowTemplates200Response> {
-    return this.get<ListWorkflowTemplates200Response>("/workflow-templates", params)
+  listWorkflowTemplates(
+    request?: ListWorkflowTemplatesParams
+  ): TE.TaskEither<ApprovioError, ListWorkflowTemplates200Response> {
+    return this.get<ListWorkflowTemplates200Response, ListWorkflowTemplatesParams>("/workflow-templates", request)
   }
 
-  /**
-   * Get workflow template details.
-   */
   getWorkflowTemplate(templateIdentifier: string): TE.TaskEither<ApprovioError, WorkflowTemplate> {
     return this.get<WorkflowTemplate>(`/workflow-templates/${templateIdentifier}`)
   }
 
-  /**
-   * Update a workflow template.
-   */
   updateWorkflowTemplate(
     templateIdentifier: string,
     data: WorkflowTemplateUpdate
@@ -143,9 +109,6 @@ export class ApprovioUserClient extends BaseApprovioClient {
     return this.put<WorkflowTemplate>(`/workflow-templates/${templateIdentifier}`, data)
   }
 
-  /**
-   * Deprecate a workflow template.
-   */
   deprecateWorkflowTemplate(
     templateName: string,
     data?: WorkflowTemplateDeprecate
@@ -153,9 +116,6 @@ export class ApprovioUserClient extends BaseApprovioClient {
     return this.post<WorkflowTemplate>(`/workflow-templates/${templateName}/deprecate`, data)
   }
 
-  /**
-   * Create a new group.
-   */
   createGroup(data: GroupCreate): TE.TaskEither<ApprovioError, string> {
     return pipe(
       this.postWithLocation<void>("/groups", data),
@@ -168,23 +128,14 @@ export class ApprovioUserClient extends BaseApprovioClient {
     )
   }
 
-  /**
-   * List groups.
-   */
-  listGroups(params?: {page?: number; limit?: number}): TE.TaskEither<ApprovioError, ListGroups200Response> {
-    return this.get<ListGroups200Response>("/groups", params)
+  listGroups(params?: ListGroupsParams): TE.TaskEither<ApprovioError, ListGroups200Response> {
+    return this.get<ListGroups200Response, ListGroupsParams>("/groups", params)
   }
 
-  /**
-   * Get group details.
-   */
   getGroup(groupIdentifier: string): TE.TaskEither<ApprovioError, Group> {
     return this.get<Group>(`/groups/${groupIdentifier}`)
   }
 
-  /**
-   * List entities in a group.
-   */
   listGroupEntities(
     groupId: string,
     params?: {
@@ -195,51 +146,30 @@ export class ApprovioUserClient extends BaseApprovioClient {
     return this.get<ListGroupEntities200Response>(`/groups/${groupId}/entities`, params)
   }
 
-  /**
-   * Add entities to a group.
-   */
   addGroupEntities(groupId: string, data: AddGroupEntitiesRequest): TE.TaskEither<ApprovioError, Group> {
     return this.post<Group>(`/groups/${groupId}/entities`, data)
   }
 
-  /**
-   * Remove entities from a group.
-   */
   removeGroupEntities(groupId: string, data: RemoveGroupEntitiesRequest): TE.TaskEither<ApprovioError, Group> {
     return this.delete<Group>(`/groups/${groupId}/entities`, data)
   }
 
-  /**
-   * Create a new space.
-   */
   createSpace(data: SpaceCreate): TE.TaskEither<ApprovioError, void> {
     return this.post<void>("/spaces", data)
   }
 
-  /**
-   * List spaces.
-   */
-  listSpaces(params?: {page?: number; limit?: number}): TE.TaskEither<ApprovioError, ListSpaces200Response> {
-    return this.get<ListSpaces200Response>("/spaces", params)
+  listSpaces(params?: ListSpacesParams): TE.TaskEither<ApprovioError, ListSpaces200Response> {
+    return this.get<ListSpaces200Response, ListSpacesParams>("/spaces", params)
   }
 
-  /**
-   * Get space details.
-   */
   getSpace(spaceId: string): TE.TaskEither<ApprovioError, Space> {
     return this.get<Space>(`/spaces/${spaceId}`)
   }
 
-  /**
-   * Delete a space.
-   */
   deleteSpace(spaceId: string): TE.TaskEither<ApprovioError, void> {
     return this.delete<void>(`/spaces/${spaceId}`)
   }
 
-  /**
-   * Add an organization admin.
-   */
   addOrganizationAdminToOrg(
     organizationName: string,
     data: OrganizationAdminCreate
@@ -247,9 +177,6 @@ export class ApprovioUserClient extends BaseApprovioClient {
     return this.post<void>(`/organization/${organizationName}/admins`, data)
   }
 
-  /**
-   * List organization admins.
-   */
   listOrganizationAdminsForOrg(
     organizationName: string,
     params?: {
@@ -260,9 +187,6 @@ export class ApprovioUserClient extends BaseApprovioClient {
     return this.get<ListOrganizationAdminsForOrg200Response>(`/organization/${organizationName}/admins`, params)
   }
 
-  /**
-   * Remove an organization admin.
-   */
   removeOrganizationAdminFromOrg(
     organizationName: string,
     data: OrganizationAdminRemove

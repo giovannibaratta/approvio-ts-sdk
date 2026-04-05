@@ -17,6 +17,17 @@ import {ApprovioServerConfig, Authenticator} from "../interfaces"
 import {isApprovioError, removeTrailingSlash, validateURL} from "./utils"
 import {LocationNotFoundError, NetworkError} from "./errors"
 
+type SerializablePrimitive = string | number | boolean | null | undefined
+type SerializableValue = SerializablePrimitive | SerializablePrimitive[]
+
+/**
+ * Validates that a type consists only of values serializeable by Axios as query parameters.
+ * Nested objects result in 'never', triggering a TypeScript error if used.
+ */
+export type SafeQueryParams<T> = {
+  [K in keyof T]: T[K] extends SerializableValue ? T[K] : never
+}
+
 export type ApprovioError = (APIError & {status: number}) | Error
 
 const networkCodes = ["ECONNREFUSED", "ETIMEDOUT", "ENOTFOUND", "ECONNRESET"]
@@ -34,7 +45,10 @@ export abstract class BaseApprovioClient {
     validateURL(config.endpoint)
 
     this.axios = axios.create({
-      baseURL: removeTrailingSlash(config.endpoint)
+      baseURL: removeTrailingSlash(config.endpoint),
+      paramsSerializer: {
+        indexes: null // Removes brackets from array params: key=a&key=b
+      }
     })
 
     this.authenticator.customizeAxios(this.axios)
@@ -61,10 +75,13 @@ export abstract class BaseApprovioClient {
   /**
    * Performs a GET request.
    */
-  protected get<T>(url: string, params?: Record<string, unknown>): TE.TaskEither<ApprovioError, T> {
+  protected get<Response, Params extends SafeQueryParams<Params> = Record<string, SerializableValue>>(
+    url: string,
+    params?: Params
+  ): TE.TaskEither<ApprovioError, Response> {
     return TE.tryCatch(
       async () => {
-        const response = await this.axios.get<T>(url, {params})
+        const response = await this.axios.get<Response>(url, {params})
         return response.data
       },
       error => this.handleError(error)
@@ -141,7 +158,7 @@ export abstract class BaseApprovioClient {
    * Get workflow details.
    */
   getWorkflow(workflowId: string, params?: GetWorkflowParams): TE.TaskEither<ApprovioError, Workflow> {
-    return this.get<Workflow>(`/workflows/${workflowId}`, params as Record<string, unknown>)
+    return this.get<Workflow, GetWorkflowParams>(`/workflows/${workflowId}`, params)
   }
 
   /**
@@ -151,10 +168,10 @@ export abstract class BaseApprovioClient {
     const queryParams: Record<string, unknown> = {
       page: params?.page,
       limit: params?.limit,
-      "include-only-non-terminal-state": params?.includeOnlyNonTerminalState,
+      includeOnlyNonTerminalState: params?.includeOnlyNonTerminalState,
       include: params?.include
     }
-    return this.get<ListWorkflows200Response>("/workflows", queryParams)
+    return this.get<ListWorkflows200Response, ListWorkflowsParams>("/workflows", queryParams)
   }
 
   /**

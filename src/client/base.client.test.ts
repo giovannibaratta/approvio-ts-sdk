@@ -1,4 +1,4 @@
-import {BaseApprovioClient} from "./base.client"
+import {BaseApprovioClient, SafeQueryParams} from "./base.client"
 import {Authenticator} from "../interfaces"
 import axios from "axios"
 import * as E from "fp-ts/Either"
@@ -26,8 +26,8 @@ class TestClient extends BaseApprovioClient {
     return this.mockAuthenticator
   }
 
-  public testGet<T>(url: string, params?: Record<string, unknown>) {
-    return this.get<T>(url, params)
+  public testGet<T, P extends SafeQueryParams<P>>(url: string, params?: P) {
+    return this.get<T, P>(url, params)
   }
 
   public testPost<T>(url: string, data?: unknown) {
@@ -112,7 +112,10 @@ describe("BaseApprovioClient", () => {
 
         // Expect: axios created with correct baseURL
         expect(mockedAxios.create).toHaveBeenCalledWith({
-          baseURL: "https://api.example.com"
+          baseURL: "https://api.example.com",
+          paramsSerializer: {
+            indexes: null
+          }
         })
       })
 
@@ -125,7 +128,10 @@ describe("BaseApprovioClient", () => {
 
         // Expect: axios created with baseURL without trailing slash
         expect(mockedAxios.create).toHaveBeenCalledWith({
-          baseURL: "https://api.example.com"
+          baseURL: "https://api.example.com",
+          paramsSerializer: {
+            indexes: null
+          }
         })
       })
     })
