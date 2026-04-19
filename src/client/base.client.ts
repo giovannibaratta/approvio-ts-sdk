@@ -10,7 +10,9 @@ import {
   ListRoleTemplates200Response,
   ListWorkflowsParams,
   GetWorkflowParams,
-  GetEntityInfo200Response
+  GetEntityInfo200Response,
+  GetWorkflowVotes200Response,
+  ListWorkflowVotesParams
 } from "@approvio/api"
 
 import {ApprovioServerConfig, Authenticator} from "../interfaces"
@@ -207,5 +209,12 @@ export abstract class BaseApprovioClient {
    */
   getEntityInfo(): TE.TaskEither<ApprovioError, GetEntityInfo200Response> {
     return this.get<GetEntityInfo200Response>("/auth/info")
+  }
+
+  listVotes(
+    workflowId: string,
+    params?: ListWorkflowVotesParams
+  ): TE.TaskEither<ApprovioError, GetWorkflowVotes200Response> {
+    return this.get<GetWorkflowVotes200Response>(`/workflows/${workflowId}/votes`, params)
   }
 }
