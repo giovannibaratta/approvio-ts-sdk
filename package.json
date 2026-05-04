@@ -1,6 +1,6 @@
 {
   "name": "@approvio/ts-sdk",
-  "version": "0.0.13",
+  "version": "0.0.14",
   "type": "module",
   "main": "dist/index.cjs",
   "module": "./dist/index.mjs",
@@ -30,7 +30,7 @@
     "prepublishOnly": "yarn format && yarn lint && yarn build"
   },
   "dependencies": {
-    "@approvio/api": "0.0.42",
+    "@approvio/api": "0.0.45",
     "axios": "1.13.2",
     "jose": "6.1.3"
   },

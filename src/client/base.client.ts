@@ -186,8 +186,8 @@ export abstract class BaseApprovioClient {
   /**
    * Vote on a workflow.
    */
-  voteOnWorkflow(workflowId: string, data: WorkflowVoteRequest): TE.TaskEither<ApprovioError, unknown> {
-    return this.post<unknown>(`/workflows/${workflowId}/vote`, data)
+  voteOnWorkflow(workflowId: string, data: WorkflowVoteRequest): TE.TaskEither<ApprovioError, void> {
+    return this.post<void>(`/workflows/${workflowId}/vote`, data)
   }
 
   /**
