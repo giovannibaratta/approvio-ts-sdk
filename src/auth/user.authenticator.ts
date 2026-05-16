@@ -1,8 +1,9 @@
 import {RefreshTokenRequest, TokenResponse} from "@approvio/api"
 import {TokenBaseAuthenticator} from "../interfaces"
 import {isJwtTokenExpired} from "./utils"
-import axios, {AxiosInstance, InternalAxiosRequestConfig} from "axios"
+import {AxiosInstance, InternalAxiosRequestConfig} from "axios"
 import {removeTrailingSlash, validateURL} from "../client/utils"
+import {createAxiosInstance} from "../client/http"
 
 /**
  * Authenticator for Approvio Users (Human sessions).
@@ -10,6 +11,7 @@ import {removeTrailingSlash, validateURL} from "../client/utils"
  */
 export class CliUserAuthenticator implements TokenBaseAuthenticator {
   private readonly endpoint: string
+  private readonly axios: AxiosInstance
 
   constructor(
     endpoint: string,
@@ -23,6 +25,9 @@ export class CliUserAuthenticator implements TokenBaseAuthenticator {
   ) {
     validateURL(endpoint)
     this.endpoint = removeTrailingSlash(endpoint)
+    this.axios = createAxiosInstance({
+      baseURL: this.endpoint
+    })
   }
 
   customizeAxios(axios: AxiosInstance): void {
@@ -58,7 +63,7 @@ export class CliUserAuthenticator implements TokenBaseAuthenticator {
       refreshToken: this.refreshToken
     }
 
-    const tokenResponse = await axios.post<TokenResponse>(`${this.endpoint}/auth/cli/refresh`, request)
+    const tokenResponse = await this.axios.post<TokenResponse>("/auth/cli/refresh", request)
 
     return tokenResponse.data
   }

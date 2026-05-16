@@ -12,6 +12,8 @@ import * as crypto from "node:crypto"
 import * as TE from "fp-ts/TaskEither"
 import {ApprovioError} from "../client/base.client"
 import {isApprovioError, removeTrailingSlash, validateURL} from "../client/utils"
+import {createAxiosInstance} from "../client/http"
+import {AxiosInstance} from "axios"
 
 /**
  * Helper class for managing Approvio authentication flows.
@@ -19,10 +21,14 @@ import {isApprovioError, removeTrailingSlash, validateURL} from "../client/utils
  */
 export class AuthHelper {
   private readonly endpoint: string
+  private readonly axios: AxiosInstance
 
   constructor(endpoint: string) {
     validateURL(endpoint)
     this.endpoint = removeTrailingSlash(endpoint)
+    this.axios = createAxiosInstance({
+      baseURL: this.endpoint
+    })
   }
 
   /**
@@ -39,7 +45,7 @@ export class AuthHelper {
   initiateCliLogin(redirectUri: string): TE.TaskEither<ApprovioError, string> {
     return TE.tryCatch(
       async () => {
-        const response = await axios.post<{authorizationUrl: string}>(`${this.endpoint}/auth/cli/initiate`, {
+        const response = await this.axios.post<{authorizationUrl: string}>("/auth/cli/initiate", {
           redirectUri
         })
         return response.data.authorizationUrl
@@ -60,7 +66,7 @@ export class AuthHelper {
 
     return TE.tryCatch(
       async () => {
-        const response = await axios.post<TokenResponse>(`${this.endpoint}/auth/cli/token`, request)
+        const response = await this.axios.post<TokenResponse>("/auth/cli/token", request)
         return response.data
       },
       error => this.handleError(error)
@@ -79,8 +85,8 @@ export class AuthHelper {
       async () => {
         // 1. Request Challenge
         const challengeRequest: AgentChallengeRequest = {agentName}
-        const challengeResponse = await axios.post<AgentChallengeResponse>(
-          `${this.endpoint}/auth/agents/challenge`,
+        const challengeResponse = await this.axios.post<AgentChallengeResponse>(
+          "/auth/agents/challenge",
           challengeRequest
         )
         const {challenge: b64EncodedChallenge} = challengeResponse.data
@@ -120,7 +126,7 @@ export class AuthHelper {
           clientAssertion: assertion
         }
 
-        const tokenResponse = await axios.post<AgentTokenResponse>(`${this.endpoint}/auth/agents/token`, tokenRequest)
+        const tokenResponse = await this.axios.post<AgentTokenResponse>("/auth/agents/token", tokenRequest)
         return tokenResponse.data
       },
       error => this.handleError(error)

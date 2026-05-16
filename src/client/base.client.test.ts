@@ -111,12 +111,14 @@ describe("BaseApprovioClient", () => {
         new TestClient(endpoint, new TestAuthenticator())
 
         // Expect: axios created with correct baseURL
-        expect(mockedAxios.create).toHaveBeenCalledWith({
-          baseURL: "https://api.example.com",
-          paramsSerializer: {
-            indexes: null
-          }
-        })
+        expect(mockedAxios.create).toHaveBeenCalledWith(
+          expect.objectContaining({
+            baseURL: "https://api.example.com",
+            paramsSerializer: {
+              indexes: null
+            }
+          })
+        )
       })
 
       it("should remove trailing slash from endpoint", () => {
@@ -127,12 +129,14 @@ describe("BaseApprovioClient", () => {
         new TestClient(endpoint, new TestAuthenticator())
 
         // Expect: axios created with baseURL without trailing slash
-        expect(mockedAxios.create).toHaveBeenCalledWith({
-          baseURL: "https://api.example.com",
-          paramsSerializer: {
-            indexes: null
-          }
-        })
+        expect(mockedAxios.create).toHaveBeenCalledWith(
+          expect.objectContaining({
+            baseURL: "https://api.example.com",
+            paramsSerializer: {
+              indexes: null
+            }
+          })
+        )
       })
     })
   })

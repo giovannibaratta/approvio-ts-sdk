@@ -1,8 +1,9 @@
 import {AgentTokenResponse, RefreshTokenRequest} from "@approvio/api"
 import {TokenBaseAuthenticator} from "../interfaces"
 import {isJwtTokenExpired} from "./utils"
-import axios, {AxiosInstance, InternalAxiosRequestConfig} from "axios"
+import {AxiosInstance, InternalAxiosRequestConfig} from "axios"
 import {removeTrailingSlash, validateURL} from "../client/utils"
+import {createAxiosInstance} from "../client/http"
 import * as jose from "jose"
 
 /**
@@ -11,6 +12,7 @@ import * as jose from "jose"
  */
 export class AgentAuthenticator implements TokenBaseAuthenticator {
   private readonly endpoint: string
+  private readonly axios: AxiosInstance
 
   constructor(
     endpoint: string,
@@ -25,6 +27,9 @@ export class AgentAuthenticator implements TokenBaseAuthenticator {
   ) {
     validateURL(endpoint)
     this.endpoint = removeTrailingSlash(endpoint)
+    this.axios = createAxiosInstance({
+      baseURL: this.endpoint
+    })
   }
 
   customizeAxios(axios: AxiosInstance): void {
@@ -57,7 +62,7 @@ export class AgentAuthenticator implements TokenBaseAuthenticator {
 
     const dpopProof = await this.generateDpopProof("POST", `${this.endpoint}/auth/agents/refresh`)
 
-    const tokenResponse = await axios.post<AgentTokenResponse>(`${this.endpoint}/auth/agents/refresh`, request, {
+    const tokenResponse = await this.axios.post<AgentTokenResponse>("/auth/agents/refresh", request, {
       headers: {
         DPoP: dpopProof
       }

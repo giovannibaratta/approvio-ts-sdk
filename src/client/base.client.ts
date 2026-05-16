@@ -1,4 +1,5 @@
 import axios, {AxiosInstance} from "axios"
+import {createAxiosInstance} from "./http"
 import * as TE from "fp-ts/TaskEither"
 import {
   APIError,
@@ -46,7 +47,7 @@ export abstract class BaseApprovioClient {
   ) {
     validateURL(config.endpoint)
 
-    this.axios = axios.create({
+    this.axios = createAxiosInstance({
       baseURL: removeTrailingSlash(config.endpoint),
       paramsSerializer: {
         indexes: null // Removes brackets from array params: key=a&key=b
