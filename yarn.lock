@@ -5,12 +5,12 @@ __metadata:
   version: 8
   cacheKey: 10
 
-"@approvio/api@npm:0.0.46":
-  version: 0.0.46
-  resolution: "@approvio/api@npm:0.0.46"
+"@approvio/api@npm:0.0.47":
+  version: 0.0.47
+  resolution: "@approvio/api@npm:0.0.47"
   peerDependencies:
     fp-ts: ^2.0.0
-  checksum: 10/d75b1e15778bed15af11a81121ce6311b82062fe86a45400ed2896166ede676c739bec07fe83e756be812f30d6d6de2f959c7140b959579b5e12a1b3c9df5c02
+  checksum: 10/05705db054a2ba788f84d758ac63fa093a50d515e34a54dfe7192de5c07ce4df52d0373577720c38b4d752476c1c0469dfe413dcf6e0776ad15880b2a5dd5803
   languageName: node
   linkType: hard
 
@@ -18,7 +18,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@approvio/ts-sdk@workspace:."
   dependencies:
-    "@approvio/api": "npm:0.0.46"
+    "@approvio/api": "npm:0.0.47"
     "@types/jest": "npm:29.5.14"
     "@types/node": "npm:22.18.0"
     "@typescript-eslint/eslint-plugin": "npm:8.50.0"
@@ -34,6 +34,7 @@ __metadata:
     jest: "npm:29.7.0"
     jose: "npm:6.2.3"
     prettier: "npm:3.7.4"
+    semver: "npm:^7.8.0"
     ts-jest: "npm:29.4.6"
     tsdown: "npm:^0.21.4"
     typescript: "npm:5.9.3"
@@ -4534,6 +4535,15 @@ __metadata:
   bin:
     semver: bin/semver.js
   checksum: 10/26bdc6d58b29528f4142d29afb8526bc335f4fc04c4a10f2b98b217f277a031c66736bf82d3d3bb354a2f6a3ae50f18fd62b053c4ac3f294a3d10a61f5075b75
+  languageName: node
+  linkType: hard
+
+"semver@npm:^7.8.0":
+  version: 7.8.0
+  resolution: "semver@npm:7.8.0"
+  bin:
+    semver: bin/semver.js
+  checksum: 10/039a8f68a581c03c1ac17c990316da57a79a93af9b109b712739c50cd4d464079f7e3fee31c008b472e390c7ba48a11ed2b86e91d8602bf06059d4a266db1426
   languageName: node
   linkType: hard
 
