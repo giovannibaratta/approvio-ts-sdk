@@ -197,4 +197,8 @@ export class ApprovioUserClient extends BaseApprovioClient {
   getAgent(agentId: string): TE.TaskEither<ApprovioError, AgentGet200Response> {
     return this.get<AgentGet200Response>(`/agents/${agentId}`)
   }
+
+  logout(): TE.TaskEither<ApprovioError, void> {
+    return this.post<void>("/auth/web/logout")
+  }
 }
