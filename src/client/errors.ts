@@ -9,3 +9,12 @@ export class NetworkError extends Error {
     super(message)
   }
 }
+
+export class UnexpectedEntityTypeError extends Error {
+  constructor(
+    readonly expected: string,
+    readonly received: string
+  ) {
+    super(`Expected entity type ${expected} but received ${received}`)
+  }
+}

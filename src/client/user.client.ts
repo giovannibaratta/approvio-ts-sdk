@@ -28,7 +28,8 @@ import {
   ListWorkflowTemplatesParams,
   ListGroupsParams,
   ListUsersParams,
-  ListSpacesParams
+  ListSpacesParams,
+  GetEntityInfoUserResponse
 } from "@approvio/api"
 
 import {BaseApprovioClient, ApprovioError} from "./base.client"
@@ -36,6 +37,7 @@ import {CliUserAuthenticator} from "../auth/user.authenticator"
 import {ApprovioServerConfig} from "../interfaces"
 import {pipe} from "fp-ts/function"
 import {WebAuthenticator} from "src/auth/web.authenticator"
+import {UnexpectedEntityTypeError} from "./errors"
 
 /**
  * Client for Approvio API (Human/User).
@@ -196,6 +198,16 @@ export class ApprovioUserClient extends BaseApprovioClient {
 
   getAgent(agentId: string): TE.TaskEither<ApprovioError, AgentGet200Response> {
     return this.get<AgentGet200Response>(`/agents/${agentId}`)
+  }
+
+  override getEntityInfo(): TE.TaskEither<ApprovioError, GetEntityInfoUserResponse> {
+    return pipe(
+      super.getEntityInfo(),
+      TE.chain(info => {
+        if (info.entityType === "user") return TE.right(info)
+        return TE.left(new UnexpectedEntityTypeError("user", info.entityType))
+      })
+    )
   }
 
   logout(): TE.TaskEither<ApprovioError, void> {
