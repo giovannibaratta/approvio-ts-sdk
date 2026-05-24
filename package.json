@@ -34,7 +34,7 @@
     "prepublishOnly": "yarn format && yarn lint && yarn build"
   },
   "dependencies": {
-    "@approvio/api": "0.0.50",
+    "@approvio/api": "0.0.52",
     "axios": "1.16.1",
     "jose": "6.2.3"
   },
