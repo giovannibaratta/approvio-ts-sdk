@@ -29,7 +29,10 @@ import {
   ListGroupsParams,
   ListUsersParams,
   ListSpacesParams,
-  GetEntityInfoUserResponse
+  GetEntityInfoUserResponse,
+  ListAuditLogs200Response,
+  ListAuditLogsParams,
+  ListMyAuditLogsParams
 } from "@approvio/api"
 
 import {BaseApprovioClient, ApprovioError} from "./base.client"
@@ -208,6 +211,14 @@ export class ApprovioUserClient extends BaseApprovioClient {
         return TE.left(new UnexpectedEntityTypeError("user", info.entityType))
       })
     )
+  }
+
+  listAuditLogs(params?: ListAuditLogsParams): TE.TaskEither<ApprovioError, ListAuditLogs200Response> {
+    return this.get<ListAuditLogs200Response, ListAuditLogsParams>("/audit-logs", params)
+  }
+
+  listMyAuditLogs(params?: ListMyAuditLogsParams): TE.TaskEither<ApprovioError, ListAuditLogs200Response> {
+    return this.get<ListAuditLogs200Response, ListMyAuditLogsParams>("/audit-logs/me", params)
   }
 
   logout(): TE.TaskEither<ApprovioError, void> {
