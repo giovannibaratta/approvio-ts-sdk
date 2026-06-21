@@ -32,7 +32,9 @@ import {
   GetEntityInfoUserResponse,
   ListAuditLogs200Response,
   ListAuditLogsParams,
-  ListMyAuditLogsParams
+  ListMyAuditLogsParams,
+  ResourceResolveRequest,
+  ResourceResolveResponse
 } from "@approvio/api"
 
 import {BaseApprovioClient, ApprovioError} from "./base.client"
@@ -219,6 +221,10 @@ export class ApprovioUserClient extends BaseApprovioClient {
 
   listMyAuditLogs(params?: ListMyAuditLogsParams): TE.TaskEither<ApprovioError, ListAuditLogs200Response> {
     return this.get<ListAuditLogs200Response, ListMyAuditLogsParams>("/audit-logs/me", params)
+  }
+
+  resolveResources(params: ResourceResolveRequest): TE.TaskEither<ApprovioError, ResourceResolveResponse> {
+    return this.post<ResourceResolveResponse>("/resources/resolve", params)
   }
 
   logout(): TE.TaskEither<ApprovioError, void> {
