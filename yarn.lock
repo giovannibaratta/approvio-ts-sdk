@@ -34,7 +34,7 @@ __metadata:
     jest: "npm:29.7.0"
     jose: "npm:6.2.3"
     prettier: "npm:3.8.3"
-    semver: "npm:^7.8.0"
+    semver: "npm:^7.8.5"
     ts-jest: "npm:29.4.6"
     tsdown: "npm:^0.22.3"
     typescript: "npm:5.9.3"
@@ -4510,21 +4510,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"semver@npm:^7.8.0":
-  version: 7.8.0
-  resolution: "semver@npm:7.8.0"
-  bin:
-    semver: bin/semver.js
-  checksum: 10/039a8f68a581c03c1ac17c990316da57a79a93af9b109b712739c50cd4d464079f7e3fee31c008b472e390c7ba48a11ed2b86e91d8602bf06059d4a266db1426
-  languageName: node
-  linkType: hard
-
 "semver@npm:^7.8.4":
   version: 7.8.4
   resolution: "semver@npm:7.8.4"
   bin:
     semver: bin/semver.js
   checksum: 10/a9c139031d4143932adfacfd2165d6489848c3b84c26d5fc2beef88c6d54c01191ef553e3f71049ccc47df85f0df30748907f84005f46f326095003171c5b673
+  languageName: node
+  linkType: hard
+
+"semver@npm:^7.8.5":
+  version: 7.8.5
+  resolution: "semver@npm:7.8.5"
+  bin:
+    semver: bin/semver.js
+  checksum: 10/9b01d2ff11e6e4a4539b7ca3c5f280c8704cb397a28504469f2ed4f00ad2194748d756647362a9712fff30984d15772ab7f083108c2fb508e2096ae9e708f22c
   languageName: node
   linkType: hard
 
