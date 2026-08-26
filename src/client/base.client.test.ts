@@ -3,6 +3,11 @@ import {Authenticator} from "../interfaces"
 import axios from "axios"
 import * as E from "fp-ts/Either"
 
+const unwrapRight = <L, R>(either: E.Either<L, R>): R => {
+  if (E.isLeft(either)) throw new Error(`Failed to unwrap Either right. Either is left: ${String(either.left)}`)
+  return either.right
+}
+
 jest.mock("axios")
 const mockedAxios = axios as jest.Mocked<typeof axios>
 
@@ -312,6 +317,36 @@ describe("BaseApprovioClient", () => {
           // Expect: axios called with URL
           expect(mockAxiosInstance.delete).toHaveBeenCalledWith("/endpoint/123", undefined)
         })
+      })
+    })
+
+    describe("getAuthProviders", () => {
+      it("should return auth providers list on success", async () => {
+        // Given: successful response
+        const mockProviders = [
+          {id: "google", displayName: "Google", loginUrl: "/auth/web/login?provider=google"},
+          {id: "okta", displayName: "Okta SSO", loginUrl: "/auth/web/login?provider=okta"}
+        ]
+        mockAxiosInstance.get.mockResolvedValue({data: mockProviders})
+
+        // When: calling getAuthProviders
+        const result = await client.getAuthProviders()()
+
+        // Expect: Right with providers
+        expect(E.isRight(result)).toBe(true)
+        expect(unwrapRight(result)).toEqual(mockProviders)
+        expect(mockAxiosInstance.get).toHaveBeenCalledWith("/auth/providers", {params: undefined})
+      })
+
+      it("should return Left on failure", async () => {
+        // Given: axios error
+        mockAxiosInstance.get.mockRejectedValue(new Error("Network Error"))
+
+        // When: calling getAuthProviders
+        const result = await client.getAuthProviders()()
+
+        // Expect: Left with error
+        expect(E.isLeft(result)).toBe(true)
       })
     })
   })

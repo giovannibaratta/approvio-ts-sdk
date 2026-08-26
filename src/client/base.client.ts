@@ -13,7 +13,8 @@ import {
   GetWorkflowParams,
   GetEntityInfo200Response,
   GetWorkflowVotes200Response,
-  ListWorkflowVotesParams
+  ListWorkflowVotesParams,
+  AuthProvider
 } from "@approvio/api"
 
 import {ApprovioServerConfig, Authenticator} from "../interfaces"
@@ -217,5 +218,12 @@ export abstract class BaseApprovioClient {
     params?: ListWorkflowVotesParams
   ): TE.TaskEither<ApprovioError, GetWorkflowVotes200Response> {
     return this.get<GetWorkflowVotes200Response>(`/workflows/${workflowId}/votes`, params)
+  }
+
+  /**
+   * Get available authentication providers.
+   */
+  getAuthProviders(): TE.TaskEither<ApprovioError, AuthProvider[]> {
+    return this.get<AuthProvider[]>("/auth/providers")
   }
 }
