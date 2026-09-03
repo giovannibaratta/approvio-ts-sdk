@@ -34,7 +34,9 @@ import {
   ListAuditLogsParams,
   ListMyAuditLogsParams,
   ResourceResolveRequest,
-  ResourceResolveResponse
+  ResourceResolveResponse,
+  OrganizationEntitlementsResponse,
+  OrganizationUsageResponse
 } from "@approvio/api"
 
 import {BaseApprovioClient, ApprovioError} from "./base.client"
@@ -43,6 +45,11 @@ import {ApprovioServerConfig} from "../interfaces"
 import {pipe} from "fp-ts/function"
 import {WebAuthenticator} from "src/auth/web.authenticator"
 import {UnexpectedEntityTypeError} from "./errors"
+
+export interface GetOrganizationUsageParams {
+  period?: string
+  metric?: string
+}
 
 /**
  * Client for Approvio API (Human/User).
@@ -225,6 +232,17 @@ export class ApprovioUserClient extends BaseApprovioClient {
 
   resolveResources(params: ResourceResolveRequest): TE.TaskEither<ApprovioError, ResourceResolveResponse> {
     return this.post<ResourceResolveResponse>("/resources/resolve", params)
+  }
+
+  getOrganizationEntitlements(orgId: string): TE.TaskEither<ApprovioError, OrganizationEntitlementsResponse> {
+    return this.get<OrganizationEntitlementsResponse>(`/organizations/${orgId}/entitlements`)
+  }
+
+  getOrganizationUsage(
+    orgId: string,
+    params?: GetOrganizationUsageParams
+  ): TE.TaskEither<ApprovioError, OrganizationUsageResponse> {
+    return this.get<OrganizationUsageResponse, GetOrganizationUsageParams>(`/organizations/${orgId}/usage`, params)
   }
 
   logout(): TE.TaskEither<ApprovioError, void> {
