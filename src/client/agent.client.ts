@@ -1,4 +1,5 @@
-import {BaseApprovioClient, ApprovioError} from "./base.client"
+import {ApprovioError} from "./base.client"
+import {OrganizationClient} from "./organization.client"
 import {AgentAuthenticator} from "../auth/agent.authenticator"
 import {ApprovioServerConfig, Authenticator} from "../interfaces"
 import {GetEntityInfoAgentResponse} from "@approvio/api"
@@ -9,12 +10,12 @@ import {UnexpectedEntityTypeError} from "./errors"
 /**
  * Client for Approvio API (Agent).
  */
-export class ApprovioAgentClient extends BaseApprovioClient {
+export class ApprovioAgentClient extends OrganizationClient {
   constructor(
     config: ApprovioServerConfig,
     readonly authenticator: AgentAuthenticator
   ) {
-    super(config, authenticator)
+    super(config, authenticator, authenticator.organizationId)
   }
 
   getAuthenticator(): Authenticator {

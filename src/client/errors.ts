@@ -18,3 +18,21 @@ export class UnexpectedEntityTypeError extends Error {
     super(`Expected entity type ${expected} but received ${received}`)
   }
 }
+
+export class OrganizationContextChangedError extends Error {
+  constructor(
+    readonly status: number,
+    message: string
+  ) {
+    super(message)
+  }
+}
+
+export class OrganizationSuspendedError extends Error {
+  constructor(
+    readonly status: number,
+    message: string
+  ) {
+    super(message)
+  }
+}

@@ -1,25 +1,16 @@
 import axios, {AxiosInstance} from "axios"
 import {createAxiosInstance} from "./http"
 import * as TE from "fp-ts/TaskEither"
-import {
-  APIError,
-  Workflow,
-  ListWorkflows200Response,
-  WorkflowCreate,
-  WorkflowVoteRequest,
-  CanVoteResponse,
-  ListRoleTemplates200Response,
-  ListWorkflowsParams,
-  GetWorkflowParams,
-  GetEntityInfo200Response,
-  GetWorkflowVotes200Response,
-  ListWorkflowVotesParams,
-  AuthProvider
-} from "@approvio/api"
+import {APIError} from "@approvio/api"
 
 import {ApprovioServerConfig, Authenticator} from "../interfaces"
 import {isApprovioError, removeTrailingSlash, validateURL} from "./utils"
-import {LocationNotFoundError, NetworkError} from "./errors"
+import {
+  LocationNotFoundError,
+  NetworkError,
+  OrganizationContextChangedError,
+  OrganizationSuspendedError
+} from "./errors"
 
 type SerializablePrimitive = string | number | boolean | null | undefined
 type SerializableValue = SerializablePrimitive | SerializablePrimitive[]
@@ -32,7 +23,16 @@ export type SafeQueryParams<T> = {
   [K in keyof T]: T[K] extends SerializableValue ? T[K] : never
 }
 
-export type ApprovioError = (APIError & {status: number}) | Error
+export type ApprovioError =
+  | (APIError & {status: number})
+  | OrganizationContextChangedError
+  | OrganizationSuspendedError
+  | Error
+
+export interface Versioned<T> {
+  data: T
+  etag: string
+}
 
 const networkCodes = ["ECONNREFUSED", "ETIMEDOUT", "ENOTFOUND", "ECONNRESET"]
 
@@ -64,6 +64,12 @@ export abstract class BaseApprovioClient {
       const status = error.response?.status
       const data = error.response?.data
       if (status && isApprovioError(data)) {
+        if (data.code === "ORGANIZATION_CONTEXT_CHANGED") {
+          return new OrganizationContextChangedError(status, data.message)
+        }
+        if (data.code === "ORGANIZATION_SUSPENDED") {
+          return new OrganizationSuspendedError(status, data.message)
+        }
         return {
           ...data,
           status
@@ -92,14 +98,45 @@ export abstract class BaseApprovioClient {
     )
   }
 
+  protected getVersioned<Response, Params extends SafeQueryParams<Params> = Record<string, SerializableValue>>(
+    url: string,
+    params?: Params
+  ): TE.TaskEither<ApprovioError, Versioned<Response>> {
+    return TE.tryCatch(
+      async () => {
+        const response = await this.axios.get<Response>(url, {params})
+        const etag = response.headers.etag
+        if (typeof etag !== "string" || !etag) throw new Error("ETag header was expected but not found")
+        return {data: response.data, etag}
+      },
+      error => this.handleError(error)
+    )
+  }
+
   /**
    * Performs a POST request.
    */
-  protected post<T>(url: string, data?: unknown): TE.TaskEither<ApprovioError, T> {
+  protected post<T>(url: string, data?: unknown, headers?: Record<string, string>): TE.TaskEither<ApprovioError, T> {
     return TE.tryCatch(
       async () => {
-        const response = await this.axios.post<T>(url, data)
+        const response = headers ? await this.axios.post<T>(url, data, {headers}) : await this.axios.post<T>(url, data)
         return response.data
+      },
+      error => this.handleError(error)
+    )
+  }
+
+  protected postVersioned<T>(
+    url: string,
+    data: unknown,
+    headers?: Record<string, string>
+  ): TE.TaskEither<ApprovioError, Versioned<T>> {
+    return TE.tryCatch(
+      async () => {
+        const response = await this.axios.post<T>(url, data, {headers})
+        const etag = response.headers.etag
+        if (typeof etag !== "string" || !etag) throw new Error("ETag header was expected but not found")
+        return {data: response.data, etag}
       },
       error => this.handleError(error)
     )
@@ -134,10 +171,22 @@ export abstract class BaseApprovioClient {
   /**
    * Performs a PUT request.
    */
-  protected put<T>(url: string, data?: unknown): TE.TaskEither<ApprovioError, T> {
+  protected put<T>(url: string, data?: unknown, headers?: Record<string, string>): TE.TaskEither<ApprovioError, T> {
     return TE.tryCatch(
       async () => {
-        const response = await this.axios.put<T>(url, data)
+        const response = headers ? await this.axios.put<T>(url, data, {headers}) : await this.axios.put<T>(url, data)
+        return response.data
+      },
+      error => this.handleError(error)
+    )
+  }
+
+  protected patch<T>(url: string, data?: unknown, headers?: Record<string, string>): TE.TaskEither<ApprovioError, T> {
+    return TE.tryCatch(
+      async () => {
+        const response = headers
+          ? await this.axios.patch<T>(url, data, {headers})
+          : await this.axios.patch<T>(url, data)
         return response.data
       },
       error => this.handleError(error)
@@ -147,83 +196,14 @@ export abstract class BaseApprovioClient {
   /**
    * Performs a DELETE request.
    */
-  protected delete<T>(url: string, data?: unknown): TE.TaskEither<ApprovioError, T> {
+  protected delete<T>(url: string, data?: unknown, headers?: Record<string, string>): TE.TaskEither<ApprovioError, T> {
     return TE.tryCatch(
       async () => {
-        const config = data !== undefined ? {data} : undefined
+        const config = data !== undefined || headers ? {data, headers} : undefined
         const response = await this.axios.delete<T>(url, config)
         return response.data
       },
       error => this.handleError(error)
     )
-  }
-
-  /**
-   * Get workflow details.
-   */
-  getWorkflow(workflowId: string, params?: GetWorkflowParams): TE.TaskEither<ApprovioError, Workflow> {
-    return this.get<Workflow, GetWorkflowParams>(`/workflows/${workflowId}`, params)
-  }
-
-  /**
-   * List workflows.
-   */
-  listWorkflows(params?: ListWorkflowsParams): TE.TaskEither<ApprovioError, ListWorkflows200Response> {
-    const queryParams: Record<string, unknown> = {
-      page: params?.page,
-      limit: params?.limit,
-      includeOnlyNonTerminalState: params?.includeOnlyNonTerminalState,
-      include: params?.include
-    }
-    return this.get<ListWorkflows200Response, ListWorkflowsParams>("/workflows", queryParams)
-  }
-
-  /**
-   * Create a new workflow.
-   */
-  createWorkflow(data: WorkflowCreate): TE.TaskEither<ApprovioError, void> {
-    return this.post<void>("/workflows", data)
-  }
-
-  /**
-   * Vote on a workflow.
-   */
-  voteOnWorkflow(workflowId: string, data: WorkflowVoteRequest): TE.TaskEither<ApprovioError, void> {
-    return this.post<void>(`/workflows/${workflowId}/vote`, data)
-  }
-
-  /**
-   * Check if the current entity can vote on a workflow.
-   */
-  canVoteOnWorkflow(workflowId: string): TE.TaskEither<ApprovioError, CanVoteResponse> {
-    return this.get<CanVoteResponse>(`/workflows/${workflowId}/canVote`)
-  }
-
-  /**
-   * List role templates.
-   */
-  listRoleTemplates(): TE.TaskEither<ApprovioError, ListRoleTemplates200Response> {
-    return this.get<ListRoleTemplates200Response>("/roles")
-  }
-
-  /**
-   * Get authenticated entity information.
-   */
-  getEntityInfo(): TE.TaskEither<ApprovioError, GetEntityInfo200Response> {
-    return this.get<GetEntityInfo200Response>("/auth/info")
-  }
-
-  listVotes(
-    workflowId: string,
-    params?: ListWorkflowVotesParams
-  ): TE.TaskEither<ApprovioError, GetWorkflowVotes200Response> {
-    return this.get<GetWorkflowVotes200Response>(`/workflows/${workflowId}/votes`, params)
-  }
-
-  /**
-   * Get available authentication providers.
-   */
-  getAuthProviders(): TE.TaskEither<ApprovioError, AuthProvider[]> {
-    return this.get<AuthProvider[]>("/auth/providers")
   }
 }
