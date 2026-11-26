@@ -16,6 +16,7 @@ export class AgentAuthenticator implements TokenBaseAuthenticator {
 
   constructor(
     endpoint: string,
+    readonly organizationId: string,
     private readonly privateKey: string,
     private accessToken: string,
     private refreshToken: string,
@@ -60,9 +61,10 @@ export class AgentAuthenticator implements TokenBaseAuthenticator {
       refreshToken: this.refreshToken
     }
 
-    const dpopProof = await this.generateDpopProof("POST", `${this.endpoint}/auth/agents/refresh`)
+    const refreshPath = `/o/${encodeURIComponent(this.organizationId)}/auth/agents/refresh`
+    const dpopProof = await this.generateDpopProof("POST", `${this.endpoint}${refreshPath}`)
 
-    const tokenResponse = await this.axios.post<AgentTokenResponse>("/auth/agents/refresh", request, {
+    const tokenResponse = await this.axios.post<AgentTokenResponse>(refreshPath, request, {
       headers: {
         DPoP: dpopProof
       }

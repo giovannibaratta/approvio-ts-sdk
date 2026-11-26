@@ -53,3 +53,8 @@ coverage
 TODO
 
 manual-tests
+
+.repowise
+.mcp.json
+.codex
+.vscode/extensions.json
